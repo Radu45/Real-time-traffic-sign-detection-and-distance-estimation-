@@ -3,7 +3,7 @@ This repository contains a ROS2 (Jazzy)-based object detection, classification a
 This project is part of a bachelor thesis and focuses on detecting objects (in this case traffic signs), classifying them and estimating the distance to them 
 using stereo vision and deep-learning object detection models.
 
-This sytem integrates YOLOv8l for object detection and classification, and stereo vision triangulation for depth estimation, both of them running in real time using frames from two synchronized cameras.
+This sytem integrates YOLOv8l for object detection and classification, and stereo vision triangulation for depth estimation, all of them running in real time using frames from two synchronized cameras.
 
 # Project overview
 
