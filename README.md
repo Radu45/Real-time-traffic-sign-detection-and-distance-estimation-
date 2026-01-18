@@ -54,7 +54,7 @@ source install/setup.bash
 ```
 
 # Running the pipeline 
-1) Launch the camera publisher
+1) Launch the camera publisher.    
    In the first terminal execute the following commands:
    ```
    cd excavator_ws
@@ -63,7 +63,7 @@ source install/setup.bash
    source install/setup.bash
    ros2 run camera_publisher camera_publisher
    ```
-2) Launch the depth estimation node
+2) Launch the depth estimation node.   
    Open a second terminal and run the following commands:
    ```
    cd excavator_ws
