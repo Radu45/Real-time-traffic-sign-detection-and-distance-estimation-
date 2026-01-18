@@ -1,9 +1,9 @@
 # Excavator object detection and depth estimation pipeline 
-This repository contains a ROS2 (Jazzy)-based object detection and depth estimation pipeline developed for an excavator perception system.
+This repository contains a ROS2 (Jazzy)-based object detection, classification and depth estimation pipeline developed for an excavator perception system.
 This project is part of a bachelor thesis and focuses on detecting objects (in this case traffic signs), classifying them and estimating the distance to them 
 using stereo vision and deep-learning object detection models.
 
-This sytem integrates YOLOv8l for object detection and classification and stereo triangulation for depth estimation, running in real time using frames from two synchronized cameras.
+This sytem integrates YOLOv8l for object detection and classification, and stereo vision triangulation for depth estimation, running in real time using frames from two synchronized cameras.
 
 # Project overview
 
@@ -38,7 +38,7 @@ graph TD
 
 Before executing the pipeline, ensure that :
 - ROS2 Jazzy is installed
-- The workspace needs to be sourced using setup.bash
+- The workspace needs to be sourced using setup.bash file
 - Camera calibration parameters are available
 - Python3 is installed
 
@@ -86,7 +86,7 @@ source install/setup.bash
   2. Rectify the images such that all corresponding points lie on the same epipolar line, achieved with the calibration parameters
   3. Extract the center coordinates of the corresponding detections observed in both frames
   4. Compute disparity between the object centers
-  5. Estimate depth using triangulation geometry (depth = (f * b) / d), where f is the focal distance, b is the baseline and d is the disparity
+  5. Estimate depth using the triangulation geometry (depth = (f * b) / d), where f is the focal distance, b is the baseline and d is the disparity
 
   This approach enables real-time object detection, classification and depth estimation of the detected traffic signs in front of the excavator.
 
