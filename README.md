@@ -1,74 +1,130 @@
-## Excavator Object Detection Pipeline
+# Excavator object detection and depth estimation pipeline 
+This repository contains a ROS2 (Jazzy)-based object detection and depth estimation pipeline developed for an excavator perception system.
+This project is part of a bachelor thesis and focuses on detecting objects (in this case traffic signs), classifying them and estimating the distance to them 
+using stereo vision and deep-learning object detection models.
 
-This project provides an object detection and depth estimation pipeline for an excavator system using ROS 2 (Jazzy). The pipeline involves running the camera and depth nodes, 
-along with debugging tools for inspecting topics and node communications.
+This sytem integrates YOLOv8l for object detection and classification and stereo triangulation for depth estimation, running in real time using frames from two synchronized cameras.
 
-## Prerequisites
+# Project overview
 
-ROS 2 Jazzy installed on your system.
-Workspace built with colcon (assuming install/setup.bash exists).
+The pipeline consists of the following main components:
+1) Stereo camera publisher
+   - Publishes synchronized frames from the left and right camera
+2) Depth estimation node
+   - Detects objects in both images using YOLOv8l
+   - Rectifies images using stereo calibration parameters
+   - Computes depth via triangulation
+3) ROS2 debugging and inspection tools
+   - Used to monitor topics, nodes and message flow
 
-## Running the pipeline 
+This system is designed to be modular and extensible for future autonomous machinery applications.
 
-1. Launch the Camera Publisher
-```bash
-cd excavator_ws
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 run camera_publisher camera_publisher
+```mermaid
+graph TD
+    LeftCam[camera_publisher_node<br/>Left Camera<br/>sensor_msgs/Image] -->|/left_camera/image_raw| DepthNode[depth_node<br/>YOLOv8 Object Detection<br/>Stereo Depth Estimation]
+    RightCam[camera_publisher_node<br/>Right Camera<br/>sensor_msgs/Image] -->|/right_camera/image_raw| DepthNode
+
+    DepthNode -->|Detected Objects + Depth| Output[Depth Estimates<br/>Object Class & Distance]
 ```
-This will start both cameras (left and right cameras that are required for stereo vision depth estimation) and would publish data on two individual channels (one channel for each camera) 
-, '/left_camera/image_raw' and '/right_camera/image_raw'. Frames captured from both cameras are transmitted on these channels at a rate of 30 frames per second.
+# Technologies used 
+- ROS2 Jazzy
+- Python
+- YOLOv8l (Ultralytics)
+- OpenCV
+- Stereo vision and triangulation
+- nodes,topics, publisher, subscriber, approximate time synchronizer
 
-2. Launch the Depth Node
+# Prerequisites
 
-Open a second terminal and run:
-
-```bash
-cd excavator_ws
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 run depth_node depth_node
+Before executing the pipeline, ensure that :
+- ROS2 Jazzy is installed
+- The workspace needs to be sourced using setup.bash
+- Camera calibration parameters are available
+- Python3 is installed
 
 ```
-This node 'depth_node' subscribes to the channels  '/left_camera/image_raw' and '/right_camera/image_raw' in order to have access to incoming pairs of simultaneous frames captured from left
-and right camera. This node applies an already trained model YOLOv8l on both frames, rectifies the frames (using the parameters obtained from the calibration of the cameras). Then, having these
-images calibrated we can estimate the distances to the traffic signs detected in both frames by selecting as target points the centres of the detected traffic signs in both frames. Having two centre 
-coordinated, we can apply the triangulation and compute the distance to the traffic signs. 
+source /opt/ros/jazzy/setup.bash
+```
 
-## Debugging
+# Workspace setup
+```
+cd excavator_ws
+colcon build
+source install/setup.bash
+```
 
-For troubleshooting non-communicating nodes, you can use the following commands:
+# Running the pipeline 
+1) Launch the camera publisher
+   In the first terminal execute the following commands:
+   ```
+   cd excavator_ws
+   source /opt/ros/jazzy/setup.bash
+   colcon build
+   source install/setup.bash
+   ros2 run camera_publisher camera_publisher
+   ```
+2) Launch the depth estimation node
+   Open a second terminal and run the following commands:
+   ```
+   cd excavator_ws
+   source /opt/ros/jazzy/setup.bash
+   colcon build
+   source install/setup.bash
+   ros2 run depth_node depth_node
+ 
+   ```
+   This node performs the following:
+   - Subscription to /left_camera/image_raw and /right_camera/image_raw in order to access the stereo image pairs
+   - Performs object detection using YOLOv8l
+   - Image rectification using calibration parameters
+   - Selection of the center points of the detected objects in both frames
+   - Depth estimation via stereo triangulation
 
-- List all active topics:
+  # Depth estimation method
 
-```bash
+  1. Detect objects(traffic signs) in left and right frames
+  2. Rectify the images such that all corresponding points lie on the same epipolar line, achieved with the calibration parameters
+  3. Extract the center coordinates of the corresponding detections observed in both frames
+  4. Compute disparity between the object centers
+  5. Estimate depth using triangulation geometry (depth = (f * b) / d), where f is the focal distance, b is the baseline and d is the disparity
+
+  This approach enables real-time object detection, classification and depth estimation of the detected traffic signs in front of the excavator.
+
+# Debugging and monitoring
+1) List active topics
+```
 ros2 topic list
-
 ```
-
-- Inspect data being published on a topic:
-```bash
+2) Inspect the published data 
+```
 ros2 topic echo <topic_name>
-
 ```
-- Get information about a node/topic:
-
-```bash
+3) Get topic node information (e.g whether node is subscribed to another node, and on what topic data is published on)
+```
 ros2 info <topic_name>
+``` 
+These tools are useful for diagnosing communication issues between nodes.
 
+# Handling Python package conflicts 
+
+If you encounter dependency conflicts(especially with ultralytics or other deep learning libraries), it is recommended to use a dedicated Python virtual environment:
 ```
-This provides details such as the topic it publishes on and which nodes are subscribed to it.
-
-## Handling Package Version Conflicts
-
-If you encounter conflicts with package versions (especially while running depth_node), it is recommended to create a separate Python environment and install 
-the corresponding package versions:
-
-```bash
 python3 -m venv ~/excavator_env
 source ~/excavator_env/bin/activate
-pip install -r requirements.txt  # or install specific packages manually
+pip install -r requirements.txt
 ```
-Then, retry launching the nodes within this environment.
-  
+Then rerun the ROS2 nodes from this environment.
+
+# Limitations
+- Integration with SLAM or sensor fusion
+- Higher resolution cameras to obtain more precise depth estimations
+
+# Author
+Ioan-Radu Bocu   
+Bachelor thesis project  
+Radboud University
+
+# License
+This project is intended for academic and research purposes.
+
+
