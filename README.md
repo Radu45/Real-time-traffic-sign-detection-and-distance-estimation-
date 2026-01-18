@@ -82,7 +82,7 @@ source install/setup.bash
 
   # Depth estimation method
 
-  1. Detect objects(traffic signs) in left and right frames
+  1. Detect objects(traffic signs) in the left and right frames
   2. Rectify the images such that all corresponding points lie on the same epipolar line, achieved with the calibration parameters
   3. Extract the center coordinates of the corresponding detections observed in both frames
   4. Compute disparity between the object centers
