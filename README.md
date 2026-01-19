@@ -24,7 +24,7 @@ graph TD
     LeftCam[camera_publisher_node<br/>Left Camera<br/>sensor_msgs/Image] -->|/left_camera/image_raw| DepthNode[depth_node<br/>YOLOv8 Object Detection<br/>Stereo Depth Estimation]
     RightCam[camera_publisher_node<br/>Right Camera<br/>sensor_msgs/Image] -->|/right_camera/image_raw| DepthNode
 
-    DepthNode -->|Detected Objects + Depth| Output[Depth Estimates<br/>Object Class & Distance]
+    DepthNode -->|Detected Objects + Depth| Output[Depth Estimates<br/>Object Class and Distance]
 ```
 # Technologies used 
 - ROS2 Jazzy
